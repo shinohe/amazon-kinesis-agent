@@ -217,6 +217,40 @@ public class DataConverterTest {
         final String expectedStr = "{\"metadata\":{\"foo\":{\"bar\":\"bas\"},\"key\":\"value\"},\"data\":\"This is the data\"}\n";
         verifyDataConversion(converter, dataStr.getBytes(), expectedStr.getBytes()); 
     }
+
+    @SuppressWarnings("serial")
+    @Test
+    public void testDataMaskConverter() throws Exception {
+        final Configuration config = new Configuration(new HashMap<String, Object>() {{
+            put("optionName", "JSONMASK");
+            put("pattern", "(D[1,5]00)[0-9a-zA-Z]*");
+            put("mask", "$0********");
+        }});
+        final IDataConverter converter = new DataMaskConverter(config);
+        final String dataStr = "{\"@timestamp\":\"2020-01-31T17:34:20.756+09:00\",\"hostname\":\"10.112.126.223\",\"host\":\"202.6.245.55\",\"ups\":\"test-api.dmm.com\",\"uri\":\"/api/v2/test?member_id=D100fdas989fjda&param=a\",\"method\":\"DELETE\",\"protocol\":\"HTTP/1.1\",\"status\":200,\"size\":34,\"reqtime\":0.048607,\"ups_res_time\":\"0.039086\",\"x-hrp-key\":\"-\",\"x-hrp-status\":\"200\",\"x-hrp-uid\":\"37\",\"x-hrp-role\":\"digital/videomarket\",\"x-hrp-type\":\"api_key\"}\n";
+        final String expectedStr = "{\"@timestamp\":\"2020-01-31T17:34:20.756+09:00\",\"hostname\":\"10.112.126.223\",\"host\":\"202.6.245.55\",\"ups\":\"test-api.dmm.com\",\"uri\":\"/api/v2/test?member_id=D100********&param=a\",\"method\":\"DELETE\",\"protocol\":\"HTTP/1.1\",\"status\":200,\"size\":34,\"reqtime\":0.048607,\"ups_res_time\":\"0.039086\",\"x-hrp-key\":\"-\",\"x-hrp-status\":\"200\",\"x-hrp-uid\":\"37\",\"x-hrp-role\":\"digital/videomarket\",\"x-hrp-type\":\"api_key\"}\n";
+        verifyDataConversion(converter, dataStr.getBytes(), expectedStr.getBytes()); 
+        
+        final String dataStr500 = "{\"@timestamp\":\"2020-01-31T17:34:20.756+09:00\",\"hostname\":\"10.112.126.223\",\"host\":\"202.6.245.55\",\"ups\":\"test-api.dmm.com\",\"uri\":\"/api/v2/test?member_id=D500fdas989fjda&param=a\",\"method\":\"DELETE\",\"protocol\":\"HTTP/1.1\",\"status\":200,\"size\":34,\"reqtime\":0.048607,\"ups_res_time\":\"0.039086\",\"x-hrp-key\":\"-\",\"x-hrp-status\":\"200\",\"x-hrp-uid\":\"37\",\"x-hrp-role\":\"digital/videomarket\",\"x-hrp-type\":\"api_key\"}\n";
+        final String expectedStr500 = "{\"@timestamp\":\"2020-01-31T17:34:20.756+09:00\",\"hostname\":\"10.112.126.223\",\"host\":\"202.6.245.55\",\"ups\":\"test-api.dmm.com\",\"uri\":\"/api/v2/test?member_id=D500********&param=a\",\"method\":\"DELETE\",\"protocol\":\"HTTP/1.1\",\"status\":200,\"size\":34,\"reqtime\":0.048607,\"ups_res_time\":\"0.039086\",\"x-hrp-key\":\"-\",\"x-hrp-status\":\"200\",\"x-hrp-uid\":\"37\",\"x-hrp-role\":\"digital/videomarket\",\"x-hrp-type\":\"api_key\"}\n";
+        verifyDataConversion(converter, dataStr500.getBytes(), expectedStr500.getBytes()); 
+        
+        final String dataStrValuesFewerThanColumns = "{\"@timestamp\":\"2020-01-31T17:34:20.756+09:00\",\"hostname\":\"10.112.126.223\",\"host\":\"202.6.245.55\",\"ups\":\"test-api.dmm.com\",\"uri\":\"/api/v2/D100fdas989fjda/test?param=a\",\"method\":\"DELETE\",\"protocol\":\"HTTP/1.1\",\"status\":200,\"size\":34,\"reqtime\":0.048607,\"ups_res_time\":\"0.039086\",\"x-hrp-key\":\"-\",\"x-hrp-status\":\"200\",\"x-hrp-uid\":\"37\",\"x-hrp-role\":\"digital/videomarket\",\"x-hrp-type\":\"api_key\"}\n";
+        final String expectedStrValuesFewerThanColumns = "{\"@timestamp\":\"2020-01-31T17:34:20.756+09:00\",\"hostname\":\"10.112.126.223\",\"host\":\"202.6.245.55\",\"ups\":\"test-api.dmm.com\",\"uri\":\"/api/v2/D100********/test?param=a\",\"method\":\"DELETE\",\"protocol\":\"HTTP/1.1\",\"status\":200,\"size\":34,\"reqtime\":0.048607,\"ups_res_time\":\"0.039086\",\"x-hrp-key\":\"-\",\"x-hrp-status\":\"200\",\"x-hrp-uid\":\"37\",\"x-hrp-role\":\"digital/videomarket\",\"x-hrp-type\":\"api_key\"}\n";
+        verifyDataConversion(converter, dataStrValuesFewerThanColumns.getBytes(), expectedStrValuesFewerThanColumns.getBytes()); 
+        
+        final String dataStrValuesFewerThanColumns500 = "{\"@timestamp\":\"2020-01-31T17:34:20.756+09:00\",\"hostname\":\"10.112.126.223\",\"host\":\"202.6.245.55\",\"ups\":\"test-api.dmm.com\",\"uri\":\"/api/v2/D500fdas989fjda/test?param=a\",\"method\":\"DELETE\",\"protocol\":\"HTTP/1.1\",\"status\":200,\"size\":34,\"reqtime\":0.048607,\"ups_res_time\":\"0.039086\",\"x-hrp-key\":\"-\",\"x-hrp-status\":\"200\",\"x-hrp-uid\":\"37\",\"x-hrp-role\":\"digital/videomarket\",\"x-hrp-type\":\"api_key\"}\n";
+        final String expectedStrValuesFewerThanColumns500 = "{\"@timestamp\":\"2020-01-31T17:34:20.756+09:00\",\"hostname\":\"10.112.126.223\",\"host\":\"202.6.245.55\",\"ups\":\"test-api.dmm.com\",\"uri\":\"/api/v2/D500********/test?param=a\",\"method\":\"DELETE\",\"protocol\":\"HTTP/1.1\",\"status\":200,\"size\":34,\"reqtime\":0.048607,\"ups_res_time\":\"0.039086\",\"x-hrp-key\":\"-\",\"x-hrp-status\":\"200\",\"x-hrp-uid\":\"37\",\"x-hrp-role\":\"digital/videomarket\",\"x-hrp-type\":\"api_key\"}\n";
+        verifyDataConversion(converter, dataStrValuesFewerThanColumns500.getBytes(), expectedStrValuesFewerThanColumns500.getBytes()); 
+        
+        final String dataStrMoreThanColumns = "{\"@timestamp\":\"2020-01-31T17:34:20.756+09:00\",\"hostname\":\"10.112.126.223\",\"host\":\"202.6.245.55\",\"ups\":\"test-api.dmm.com\",\"uri\":\"/api/v2/D100fdas989fjda/test?member_id=D100fdas989fjda&param=a\",\"method\":\"DELETE\",\"protocol\":\"HTTP/1.1\",\"status\":200,\"size\":34,\"reqtime\":0.048607,\"ups_res_time\":\"0.039086\",\"x-hrp-key\":\"-\",\"x-hrp-status\":\"200\",\"x-hrp-uid\":\"37\",\"x-hrp-role\":\"digital/videomarket\",\"x-hrp-type\":\"api_key\"}\n";
+        final String expectedStrMoreThanColumns = "{\"@timestamp\":\"2020-01-31T17:34:20.756+09:00\",\"hostname\":\"10.112.126.223\",\"host\":\"202.6.245.55\",\"ups\":\"test-api.dmm.com\",\"uri\":\"/api/v2/D100********/test?member_id=D100********&param=a\",\"method\":\"DELETE\",\"protocol\":\"HTTP/1.1\",\"status\":200,\"size\":34,\"reqtime\":0.048607,\"ups_res_time\":\"0.039086\",\"x-hrp-key\":\"-\",\"x-hrp-status\":\"200\",\"x-hrp-uid\":\"37\",\"x-hrp-role\":\"digital/videomarket\",\"x-hrp-type\":\"api_key\"}\n";
+        verifyDataConversion(converter, dataStrMoreThanColumns.getBytes(), expectedStrMoreThanColumns.getBytes()); 
+        
+        final String dataStrMoreThanColumns500 = "{\"@timestamp\":\"2020-01-31T17:34:20.756+09:00\",\"hostname\":\"10.112.126.223\",\"host\":\"202.6.245.55\",\"ups\":\"test-api.dmm.com\",\"uri\":\"/api/v2/D500fdas989fjda/test?member_id=D500fdas989fjda&param=a\",\"method\":\"DELETE\",\"protocol\":\"HTTP/1.1\",\"status\":200,\"size\":34,\"reqtime\":0.048607,\"ups_res_time\":\"0.039086\",\"x-hrp-key\":\"-\",\"x-hrp-status\":\"200\",\"x-hrp-uid\":\"37\",\"x-hrp-role\":\"digital/videomarket\",\"x-hrp-type\":\"api_key\"}\n";
+        final String expectedStrMoreThanColumns500 = "{\"@timestamp\":\"2020-01-31T17:34:20.756+09:00\",\"hostname\":\"10.112.126.223\",\"host\":\"202.6.245.55\",\"ups\":\"test-api.dmm.com\",\"uri\":\"/api/v2/D500********/test?member_id=D500********&param=a\",\"method\":\"DELETE\",\"protocol\":\"HTTP/1.1\",\"status\":200,\"size\":34,\"reqtime\":0.048607,\"ups_res_time\":\"0.039086\",\"x-hrp-key\":\"-\",\"x-hrp-status\":\"200\",\"x-hrp-uid\":\"37\",\"x-hrp-role\":\"digital/videomarket\",\"x-hrp-type\":\"api_key\"}\n";
+        verifyDataConversion(converter, dataStrMoreThanColumns500.getBytes(), expectedStrMoreThanColumns500.getBytes()); 
+    }
     
     private void verifyDataConversion(IDataConverter converter, byte[] dataBin, byte[] expectedBin) throws Exception {
         ByteBuffer data = ByteBuffer.wrap(dataBin);
